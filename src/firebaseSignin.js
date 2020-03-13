@@ -45,7 +45,7 @@ var launchApp = function( userId ) {
   document.body.appendChild( $app );
 
   const $newPost = document.createElement('h2');
-  $newPost.innerHTML = 'make new post';
+  $newPost.innerHTML = 'add new animal';
   $app.appendChild( $newPost );
   const $newPostForm = document.createElement('div');
   $app.appendChild( $newPostForm );
@@ -57,7 +57,7 @@ var launchApp = function( userId ) {
   $app.appendChild( $sep1 );
 
   const $postsTitle = document.createElement('h2');
-  $postsTitle.innerHTML = 'postings';
+  $postsTitle.innerHTML = 'animals';
   $app.appendChild( $postsTitle );
   const $posts = document.createElement('ul');
   $app.appendChild( $posts );
@@ -66,7 +66,7 @@ var launchApp = function( userId ) {
   $app.appendChild( $sep2 );
 
   const $selectedTitle = document.createElement('h2');
-  $selectedTitle.innerHTML = 'selected post';
+  $selectedTitle.innerHTML = 'selected animal';
   $app.appendChild( $selectedTitle );
   const $selectedPost = document.createElement('div');
   $app.appendChild( $selectedPost );
@@ -74,7 +74,7 @@ var launchApp = function( userId ) {
   //listen for new posts
   firebase
   .firestore()
-  .collection( 'posts' )
+  .collection( 'animals' )
   .where( 'userId', '==', userId )
   .onSnapshot((snapshot) => {
     $posts.innerHTML = '';
@@ -83,7 +83,7 @@ var launchApp = function( userId ) {
       const data = doc.data();
 
       const $post = document.createElement('li');
-      $post.innerHTML = data.title;
+      $post.innerHTML = data.animal;
       $post.addEventListener( 'click', () => {
         showSelectedPost( $selectedPost, data );
       });
@@ -97,33 +97,58 @@ var showSelectedPost = function( $el, data ) {
   $el.innerHTML = '';
 
   const $titleInfo = document.createElement('div');
-  $titleInfo.innerHTML = 'title: ' + data.title;
+  $titleInfo.innerHTML = 'animal: ' + data.animal;
   $el.appendChild( $titleInfo );
 
   const $textInfo = document.createElement('div');
-  $textInfo.innerHTML = 'text: ' + data.text;
+  $textInfo.innerHTML = 'food: ' + data.food;
   $el.appendChild( $textInfo );
+
+  const $dateInfo = document.createElement('div');
+  $dateInfo.innerHTML = 'name: ' + data.name;
+  $el.appendChild( $dateInfo );
 
 }
 
 var makeNewPost = function( $el, userId ) {
-  const $titleInput = document.createElement('input');
-  $el.appendChild( $titleInput );
+  const $animalLabel = document.createElement('div');
+  $animalLabel.innerHTML = 'ANIMAL:';
+  $el.appendChild( $animalLabel );
+  const $animalInput = document.createElement('input');
+  $el.appendChild( $animalInput );
+
   const $br1 = document.createElement('br');
   $el.appendChild( $br1 );
-  const $textInput = document.createElement('input');
-  $el.appendChild( $textInput );
+
+  const $foodLabel = document.createElement('div');
+  $foodLabel.innerHTML = 'FOOD:';
+  $el.appendChild( $foodLabel );
+  const $foodInput = document.createElement('input');
+  $el.appendChild( $foodInput );
+
   const $br2 = document.createElement('br');
   $el.appendChild( $br2 );
+
+  const $nameLabel = document.createElement('div');
+  $nameLabel.innerHTML = 'NAME:';
+  $el.appendChild( $nameLabel );
+  const $nameInput = document.createElement('input');
+  $el.appendChild( $nameInput );
+
+  const $br3 = document.createElement('br');
+  $el.appendChild( $br3 );
   const $submit = document.createElement('button');
   const $submitText = document.createTextNode( 'add this post!' );
+
+
   $submit.appendChild( $submitText );
   $submit.addEventListener( 'click', () =>{ 
 
     const postObj = {
-      title: $titleInput.value,
-      text: $textInput.value,
-      userId: userId
+      animal: $animalInput.value,
+      food: $foodInput.value,
+      userId: userId,
+      name: $nameInput.value
     };
 
     //clear
@@ -131,7 +156,7 @@ var makeNewPost = function( $el, userId ) {
 
     firebase
     .firestore()
-    .collection( 'posts' )
+    .collection( 'animals' )
     .add( postObj )
     .then( () => {
       console.log( 'posted!' );
