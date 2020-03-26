@@ -143,6 +143,21 @@ var launchApp = function( userId ) {
 }
 
 var showSelectedFood = function( $el, data ) {
+  const $info = document.createElement('div');
+  $el.appendChild( $info );
+  $info.innerHTML = data.food + ' is eaten by:';
+  const $list = document.createElement('ul');
+  $el.appendChild( $list );
+  for (const animalDoc of data.animals) {
+    animalDoc
+    .get()
+    .then( snapshot => {
+      const $li = document.createElement( 'li' );
+      $list.appendChild( $li );
+      $li.innerHTML = snapshot.data().name + ' the ' + snapshot.data().animal;
+    });
+  }
+
 
 }
 
