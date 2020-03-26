@@ -111,13 +111,20 @@ var showSelectedPost = function( $el, data ) {
   $el.appendChild( $titleInfo );
 
   const $textInfo = document.createElement('div');
-  $textInfo.innerHTML = 'food: ' + data.food;
+  $textInfo.innerHTML = 'food:';
   $el.appendChild( $textInfo );
 
   const $dateInfo = document.createElement('div');
   $dateInfo.innerHTML = 'name: ' + data.name;
   $el.appendChild( $dateInfo );
 
+  data
+  .food
+  .get()
+  .then( snapshot => {
+    $textInfo.innerHTML = 'food: ' + snapshot.data().food;
+  });
+  
 }
 
 var makeNewFood = function( $el, userId ) {
@@ -196,7 +203,7 @@ var makenewAnimal = function( $el, userId ) {
     if (!checkedFood) {
       return;
     }
-    const foodKey = checkedFood.value;
+    const foodKey = checkedFood.id;
     const foodDoc = foodDocs[foodKey];
 
     const postObj = {
@@ -214,14 +221,12 @@ var makenewAnimal = function( $el, userId ) {
     .collection( 'animals' )
     .add( postObj )
     .then( () => {
-      console.log( 'posted!' );
     })
     .catch( (e) => {
       console.log( 'could not post', e );
     });
 
-
-  } );
+  });
   $el.appendChild( $submit );
 
 
@@ -235,19 +240,20 @@ var makenewAnimal = function( $el, userId ) {
 
     for (const doc of snapshot.docs) {
       const data = doc.data();
+      const id = doc.id;
       const $option = document.createElement('input');
       $option.setAttribute( 'type', 'radio' );
-      $option.setAttribute( 'id', data.food );
+      $option.setAttribute( 'id', id );
       $option.setAttribute( 'value', data.food );
       $option.setAttribute( 'name', 'foodz' );
       $foodInput.appendChild( $option );
 
       const $label = document.createElement('label');
-      $label.setAttribute( 'for', data.food );
+      $label.setAttribute( 'for', id );
       $label.innerHTML = data.food;
       $foodInput.appendChild( $label );
 
-      foodDocs[data.food] = doc.ref;
+      foodDocs[id] = doc.ref;
     }
   });
 
