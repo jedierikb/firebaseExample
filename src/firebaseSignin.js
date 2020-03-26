@@ -42,13 +42,25 @@ var launchApp = function( userId ) {
   const $app = document.createElement('div');
   document.body.appendChild( $app );
 
-  const $newPost = document.createElement('h2');
-  $newPost.innerHTML = 'add new animals';
-  $app.appendChild( $newPost );
-  const $newPostForm = document.createElement('div');
-  $app.appendChild( $newPostForm );
-  $newPost.addEventListener( 'click', () => {
-    makeNewPost( $newPostForm, userId );
+  const $newFood = document.createElement('h2');
+  $newFood.innerHTML = 'add new foods';
+  $app.appendChild( $newFood );
+  const $newFoodForm = document.createElement('div');
+  $app.appendChild( $newFoodForm );
+  $newFood.addEventListener( 'click', () => {
+    makeNewFood( $newFoodForm, userId );
+  });
+
+  const $sep0 = document.createElement('hr');
+  $app.appendChild( $sep0 );
+
+  const $newAnimal = document.createElement('h2');
+  $newAnimal.innerHTML = 'add new animals';
+  $app.appendChild( $newAnimal );
+  const $newAnimalForm = document.createElement('div');
+  $app.appendChild( $newAnimalForm );
+  $newAnimal.addEventListener( 'click', () => {
+    makenewAnimal( $newAnimalForm, userId );
   });
 
   const $sep1 = document.createElement('hr');
@@ -108,7 +120,45 @@ var showSelectedPost = function( $el, data ) {
 
 }
 
-var makeNewPost = function( $el, userId ) {
+var makeNewFood = function( $el, userId ) {
+  const $foodLabel = document.createElement('div');
+  $foodLabel.innerHTML = 'FOOD:';
+  $el.appendChild( $foodLabel );
+  const $foodInput = document.createElement('input');
+  $el.appendChild( $foodInput );
+
+  const $br3 = document.createElement('br');
+  $el.appendChild( $br3 );
+  const $submit = document.createElement('button');
+  const $submitText = document.createTextNode( 'add this food!' );
+  $submit.appendChild( $submitText );
+  $el.appendChild( $submit );
+
+  $submit.addEventListener( 'click', () =>{ 
+
+    const postObj = {
+      food: $foodInput.value
+    };
+
+    firebase
+    .firestore()
+    .collection( 'foods' )
+    .add( postObj )
+    .then( () => {
+      console.log( 'posted!' );
+    })
+    .catch( (e) => {
+      console.log( 'could not post', e );
+    });
+    
+    $el.innerHTML = '';
+
+  });
+}
+
+var makenewAnimal = function( $el, userId ) {
+  var foodDocs = {};
+
   const $animalLabel = document.createElement('div');
   $animalLabel.innerHTML = 'ANIMAL:';
   $el.appendChild( $animalLabel );
@@ -121,13 +171,9 @@ var makeNewPost = function( $el, userId ) {
   const $foodLabel = document.createElement('div');
   $foodLabel.innerHTML = 'FOOD:';
   $el.appendChild( $foodLabel );
-  const $foodInput = document.createElement('input');
+  const $foodInput = document.createElement('div');
   $el.appendChild( $foodInput );
-  var foodsListKey = 'foods';
-  $foodInput.setAttribute( 'list', foodsListKey );
-  const $foodList = document.createElement('datalist');
-  $foodList.setAttribute( 'id', foodsListKey );
-  $foodInput.appendChild( $foodList );
+
 
   const $br2 = document.createElement('br');
   $el.appendChild( $br2 );
@@ -146,9 +192,16 @@ var makeNewPost = function( $el, userId ) {
   $submit.appendChild( $submitText );
   $submit.addEventListener( 'click', () =>{ 
 
+    const checkedFood = document.querySelector('input[name="foodz"]:checked');
+    if (!checkedFood) {
+      return;
+    }
+    const foodKey = checkedFood.value;
+    const foodDoc = foodDocs[foodKey];
+
     const postObj = {
       animal: $animalInput.value,
-      food: $foodInput.value,
+      food: foodDoc,
       userId: userId,
       name: $nameInput.value
     };
@@ -167,22 +220,34 @@ var makeNewPost = function( $el, userId ) {
       console.log( 'could not post', e );
     });
 
+
   } );
   $el.appendChild( $submit );
 
 
-  //listen for new posts
+  //listen for new foods
   firebase
   .firestore()
   .collection( 'foods' )
   .onSnapshot((snapshot) => {
-    $foodList.innerHTML = '';
+    $foodInput.innerHTML = '';
+    foodDocs = {};
 
     for (const doc of snapshot.docs) {
       const data = doc.data();
-      const $option = document.createElement('option');
-      $option.innerHTML = data.food;
-      $foodList.appendChild( $option );
+      const $option = document.createElement('input');
+      $option.setAttribute( 'type', 'radio' );
+      $option.setAttribute( 'id', data.food );
+      $option.setAttribute( 'value', data.food );
+      $option.setAttribute( 'name', 'foodz' );
+      $foodInput.appendChild( $option );
+
+      const $label = document.createElement('label');
+      $label.setAttribute( 'for', data.food );
+      $label.innerHTML = data.food;
+      $foodInput.appendChild( $label );
+
+      foodDocs[data.food] = doc.ref;
     }
   });
 
