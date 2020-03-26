@@ -60,17 +60,17 @@ var launchApp = function( userId ) {
   const $newAnimalForm = document.createElement('div');
   $app.appendChild( $newAnimalForm );
   $newAnimal.addEventListener( 'click', () => {
-    makenewAnimal( $newAnimalForm, userId );
+    makeNewAnimal( $newAnimalForm, userId );
   });
 
   const $sep1 = document.createElement('hr');
   $app.appendChild( $sep1 );
 
-  const $postsTitle = document.createElement('h2');
-  $postsTitle.innerHTML = 'animals';
-  $app.appendChild( $postsTitle );
-  const $posts = document.createElement('ul');
-  $app.appendChild( $posts );
+  const $animalsTitle = document.createElement('h2');
+  $animalsTitle.innerHTML = 'animals';
+  $app.appendChild( $animalsTitle );
+  const $animals = document.createElement('ul');
+  $app.appendChild( $animals );
 
   const $sep2 = document.createElement('hr');
   $app.appendChild( $sep2 );
@@ -81,13 +81,31 @@ var launchApp = function( userId ) {
   const $selectedPost = document.createElement('div');
   $app.appendChild( $selectedPost );
 
-  //listen for new posts
+  const $sep3 = document.createElement('hr');
+  $app.appendChild( $sep3 );
+
+  const $foodsTitle = document.createElement('h2');
+  $foodsTitle.innerHTML = 'foods';
+  $app.appendChild( $foodsTitle );
+  const $foods = document.createElement('ul');
+  $app.appendChild( $foods );
+
+  const $sep4 = document.createElement('hr');
+  $app.appendChild( $sep4 );
+
+  const $selectedFoodTitle = document.createElement('h2');
+  $selectedFoodTitle.innerHTML = 'selected food';
+  $app.appendChild( $selectedFoodTitle );
+  const $selectedFood = document.createElement('div');
+  $app.appendChild( $selectedFood );
+
+  // listen for new animals
   firebase
   .firestore()
   .collection( 'animals' )
   .where( 'userId', '==', userId )
   .onSnapshot((snapshot) => {
-    $posts.innerHTML = '';
+    $animals.innerHTML = '';
 
     for (const doc of snapshot.docs) {
       const data = doc.data();
@@ -95,15 +113,40 @@ var launchApp = function( userId ) {
       const $post = document.createElement('li');
       $post.innerHTML = data.animal;
       $post.addEventListener( 'click', () => {
-        showSelectedPost( $selectedPost, data );
+        showSelectedAnimal( $selectedPost, data );
       });
 
-      $posts.appendChild( $post );
+      $animals.appendChild( $post );
+    }
+  });
+
+  //& foods
+  firebase
+  .firestore()
+  .collection( 'foods' )
+  .where( 'userId', '==', userId )
+  .onSnapshot((snapshot) => {
+    $foods.innerHTML = '';
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+
+      const $post = document.createElement('li');
+      $post.innerHTML = data.food;
+      $post.addEventListener( 'click', () => {
+        showSelectedFood( $selectedFood, data );
+      });
+
+      $foods.appendChild( $post );
     }
   });  
 }
 
-var showSelectedPost = function( $el, data ) {
+var showSelectedFood = function( $el, data ) {
+
+}
+
+var showSelectedAnimal = function( $el, data ) {
   $el.innerHTML = '';
 
   const $titleInfo = document.createElement('div');
@@ -144,7 +187,8 @@ var makeNewFood = function( $el, userId ) {
   $submit.addEventListener( 'click', () =>{ 
 
     const postObj = {
-      food: $foodInput.value
+      food: $foodInput.value,
+      userId: userId
     };
 
     firebase
@@ -163,7 +207,7 @@ var makeNewFood = function( $el, userId ) {
   });
 }
 
-var makenewAnimal = function( $el, userId ) {
+var makeNewAnimal = function( $el, userId ) {
   var foodDocs = {};
 
   const $animalLabel = document.createElement('div');
@@ -221,8 +265,6 @@ var makenewAnimal = function( $el, userId ) {
     .collection( 'animals' )
     .add( postObj )
     .then( ( animalDoc ) => {
-
-      console.log( 'animalDoc', animalDoc )
 
       foodDoc
       .update({
