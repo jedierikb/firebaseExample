@@ -220,7 +220,15 @@ var makenewAnimal = function( $el, userId ) {
     .firestore()
     .collection( 'animals' )
     .add( postObj )
-    .then( () => {
+    .then( ( animalDoc ) => {
+
+      console.log( 'animalDoc', animalDoc )
+
+      foodDoc
+      .update({
+        animals: firebase.firestore.FieldValue.arrayUnion( animalDoc )
+      })
+
     })
     .catch( (e) => {
       console.log( 'could not post', e );
