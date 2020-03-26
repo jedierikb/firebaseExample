@@ -37,15 +37,13 @@ var popupSignIn = function( ) {
 }
 
 var launchApp = function( userId ) {
-  console.log( 'userId', userId );
-
   document.body.removeChild( $signin );
 
   const $app = document.createElement('div');
   document.body.appendChild( $app );
 
   const $newPost = document.createElement('h2');
-  $newPost.innerHTML = 'add new animal';
+  $newPost.innerHTML = 'add new animals';
   $app.appendChild( $newPost );
   const $newPostForm = document.createElement('div');
   $app.appendChild( $newPostForm );
@@ -125,6 +123,11 @@ var makeNewPost = function( $el, userId ) {
   $el.appendChild( $foodLabel );
   const $foodInput = document.createElement('input');
   $el.appendChild( $foodInput );
+  var foodsListKey = 'foods';
+  $foodInput.setAttribute( 'list', foodsListKey );
+  const $foodList = document.createElement('datalist');
+  $foodList.setAttribute( 'id', foodsListKey );
+  $foodInput.appendChild( $foodList );
 
   const $br2 = document.createElement('br');
   $el.appendChild( $br2 );
@@ -138,8 +141,7 @@ var makeNewPost = function( $el, userId ) {
   const $br3 = document.createElement('br');
   $el.appendChild( $br3 );
   const $submit = document.createElement('button');
-  const $submitText = document.createTextNode( 'add this post!' );
-
+  const $submitText = document.createTextNode( 'add this animal!' );
 
   $submit.appendChild( $submitText );
   $submit.addEventListener( 'click', () =>{ 
@@ -167,5 +169,21 @@ var makeNewPost = function( $el, userId ) {
 
   } );
   $el.appendChild( $submit );
+
+
+  //listen for new posts
+  firebase
+  .firestore()
+  .collection( 'foods' )
+  .onSnapshot((snapshot) => {
+    $foodList.innerHTML = '';
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      const $option = document.createElement('option');
+      $option.innerHTML = data.food;
+      $foodList.appendChild( $option );
+    }
+  });
 
 }
