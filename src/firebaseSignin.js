@@ -143,6 +143,7 @@ var launchApp = function( userId ) {
 }
 
 var showSelectedFood = function( $el, data ) {
+  $el.innerHTML = '';
   const $info = document.createElement('div');
   $el.appendChild( $info );
   $info.innerHTML = data.food + ' is eaten by:';
@@ -299,6 +300,7 @@ var makeNewAnimal = function( $el, userId ) {
   firebase
   .firestore()
   .collection( 'foods' )
+  .where( 'userId', '==', userId )
   .onSnapshot((snapshot) => {
     $foodInput.innerHTML = '';
     foodDocs = {};
